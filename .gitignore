@@ -2,6 +2,8 @@
 **/.terraform/*
 *.tfstate
 *.tfstate.*
+*.tfplan
+tfplan
 crash.log
 crash.*.log
 override.tf
@@ -10,9 +12,27 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
-tfplan
+.terraform.lock.hcl
 
 # Sensitive / local-only
 *.tfvars
 !terraform.tfvars.example
 apply-output.txt
+outputs.txt
+
+# SSH keys / sensitive files
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+!*.pub
+
+# Kubernetes / proof artifacts
+stage2-proof/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
