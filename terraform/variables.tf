@@ -68,6 +68,11 @@ variable "admin_ssh_public_key_path" {
   type        = string
 }
 
+variable "admin_ssh_private_key_path" {
+  description = "Path to your private SSH key file on the machine running Terraform. Used only to upload Stage 2 scripts to the VM."
+  type        = string
+}
+
 variable "ssh_allowed_cidr" {
   description = "CIDR allowed to SSH to the VM, for example 203.0.113.10/32."
   type        = string

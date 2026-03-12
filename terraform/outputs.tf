@@ -20,5 +20,10 @@ output "network_security_group_name" {
 
 output "ssh_command" {
   description = "SSH command to connect to the VM."
-  value       = "ssh ${var.admin_username}@${module.linux_vm.public_ip_address}"
+  value       = "ssh -i ${var.admin_ssh_private_key_path} ${var.admin_username}@${module.linux_vm.public_ip_address}"
+}
+
+output "stage2_scripts_path" {
+  description = "Path on the VM where the Stage 2 scripts were uploaded."
+  value       = "/opt/k8s-tf-azure/scripts"
 }

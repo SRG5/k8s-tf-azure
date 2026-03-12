@@ -39,3 +39,51 @@ module "linux_vm" {
 
   depends_on = [module.network]
 }
+
+resource "time_sleep" "after_vm" {
+  depends_on      = [module.linux_vm]
+  create_duration = "15s"
+}
+
+resource "null_resource" "upload_stage2_scripts" {
+  depends_on = [time_sleep.after_vm]
+
+  triggers = {
+    vm_ip         = module.linux_vm.public_ip_address
+    install_sha   = filesha256("${path.module}/../scripts/stage2-install-prereqs.sh")
+    init_sha      = filesha256("${path.module}/../scripts/stage2-init-cluster.sh")
+  }
+
+  connection {
+    type        = "ssh"
+    user        = var.admin_username
+    host        = module.linux_vm.public_ip_address
+    private_key = file(var.admin_ssh_private_key_path)
+    timeout     = "2m"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /opt/k8s-tf-azure/scripts",
+      "sudo chown -R ${var.admin_username}:${var.admin_username} /opt/k8s-tf-azure"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../scripts/stage2-install-prereqs.sh"
+    destination = "/opt/k8s-tf-azure/scripts/stage2-install-prereqs.sh"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../scripts/stage2-init-cluster.sh"
+    destination = "/opt/k8s-tf-azure/scripts/stage2-init-cluster.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /opt/k8s-tf-azure/scripts/stage2-install-prereqs.sh",
+      "chmod +x /opt/k8s-tf-azure/scripts/stage2-init-cluster.sh",
+      "ls -l /opt/k8s-tf-azure/scripts"
+    ]
+  }
+}

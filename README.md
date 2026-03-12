@@ -1,28 +1,26 @@
 # k8s-tf-azure
 
-Stage 1 of the **DevOps Home Assignment - K8s and TF on Azure**.
+Implementation for the **DevOps Home Assignment - K8s and TF on Azure**.
 
-This repository starts with a minimal Terraform project that provisions a lightweight Azure environment for a **single-node kubeadm-based Kubernetes cluster**.
+This repository provisions a lightweight Azure environment for a **single-node kubeadm-based Kubernetes cluster** and stages the Stage 2 Kubernetes installation scripts directly onto the VM.
 
-## What this stage provisions
+## What this repo includes
 
-- Azure Resource Group
-- Azure Virtual Network (VNet)
-- One subnet
-- One Network Security Group (NSG)
-- One Ubuntu Linux VM (`Standard_B2ms` by default)
-- SSH access restricted to a CIDR you provide
-- Public IP for administrative access
+- Terraform for Azure infrastructure
+- A minimal network layout: Resource Group, VNet, subnet, NSG
+- One Ubuntu Linux VM
+- SSH restricted to your CIDR
+- Stage 2 Kubernetes installation scripts uploaded automatically to the VM after provisioning
+- A short Stage 2 runbook for what to run and what proof to capture
 
 ## Design choices
-
-The assignment asks for a lightweight kubeadm-based environment with a VM, VNet, subnets, NSGs, and SSH access. This implementation stays deliberately small and focused:
 
 - **Single VM**: enough for a kubeadm single-node cluster.
 - **Ubuntu 22.04 LTS**: common and stable choice for kubeadm.
 - **Single subnet**: enough for this scope and keeps networking clear.
 - **NSG attached to the subnet**: simple and easy to reason about.
 - **SSH restricted to your IP/CIDR**: better than leaving port 22 open broadly.
+- **Scripts uploaded by Terraform**: reduces copy/paste mistakes while keeping the actual cluster installation explicit and easy to demonstrate.
 - **No extra services**: no load balancer, no jump host, no autoscaling, no extras the assignment did not ask for.
 
 ## Suggested repo layout
@@ -38,6 +36,11 @@ terraform/
   modules/
     network/
     linux_vm/
+scripts/
+  stage2-install-prereqs.sh
+  stage2-init-cluster.sh
+docs/
+  stage2-runbook.md
 ```
 
 ## Prerequisites
@@ -46,17 +49,6 @@ terraform/
 - Azure CLI installed
 - Terraform installed
 - An SSH key pair
-
-## Generate an SSH key (Windows PowerShell example)
-
-```powershell
-ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\k8s_tf_azure
-```
-
-This creates:
-
-- private key: `C:\Users\<you>\\.ssh\\k8s_tf_azure`
-- public key: `C:\Users\<you>\\.ssh\\k8s_tf_azure.pub`
 
 ## How to use
 
@@ -81,8 +73,9 @@ Copy-Item terraform.tfvars.example terraform.tfvars
 4. Edit `terraform.tfvars` and set:
 
 - `subscription_id`
-- `ssh_allowed_cidr` (example: `203.0.113.10/32`)
+- `ssh_allowed_cidr`
 - `admin_ssh_public_key_path`
+- `admin_ssh_private_key_path`
 
 5. Run Terraform:
 
@@ -94,30 +87,31 @@ terraform plan -out tfplan
 terraform apply tfplan
 ```
 
-## Capture apply output for submission
+## What Terraform uploads to the VM
 
-The assignment asks for **Terraform apply output**. In PowerShell you can capture it like this:
+After the VM is created, Terraform uploads:
+
+- `/opt/k8s-tf-azure/scripts/stage2-install-prereqs.sh`
+- `/opt/k8s-tf-azure/scripts/stage2-init-cluster.sh`
+
+## Stage 2 execution
+
+SSH into the VM and run:
+
+```bash
+/opt/k8s-tf-azure/scripts/stage2-install-prereqs.sh
+/opt/k8s-tf-azure/scripts/stage2-init-cluster.sh
+```
+
+See `docs/stage2-runbook.md` for the exact flow and the expected proof.
+
+## Capture apply output for submission
 
 ```powershell
 terraform apply -auto-approve *>&1 | Tee-Object -FilePath apply-output.txt
 ```
 
-## Outputs you will use
-
-After apply, Terraform prints:
-
-- VM public IP
-- SSH command
-- Resource group name
-- NSG name
-
-## SSH into the VM
-
-```powershell
-ssh -i $env:USERPROFILE\.ssh\k8s_tf_azure azureuser@<PUBLIC_IP>
-```
-
 ## Notes
 
-- This project does **not** generate private SSH keys with Terraform. That would place sensitive material in Terraform state, which is a bad practice for a simple assignment.
+- Do **not** commit `terraform.tfvars`, `terraform.tfstate`, `.terraform/`, or `tfplan`.
 - The NSG currently allows only SSH inbound from your chosen CIDR. Later stages can extend the same NSG for Grafana NodePort access.
