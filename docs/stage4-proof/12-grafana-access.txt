@@ -1,0 +1,6 @@
+Open Grafana from your browser:
+http://<VM_PUBLIC_IP>:32000
+
+Then capture a small screenshot from Grafana Alerting showing:
+- Stage4NodeHighCPU
+- state = firing
