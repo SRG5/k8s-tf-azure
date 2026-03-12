@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: stage4-node-high-cpu
+  namespace: monitoring
+spec:
+  groups:
+    - name: stage4.node-high-cpu
+      rules:
+        - alert: Stage4NodeHighCPU
+          expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 85
+          for: 1m
+          labels:
+            severity: warning
+            stage: "4"
+          annotations:
+            summary: "High CPU usage on node {{ $labels.instance }}"
+            description: "Node CPU usage has been above 85% for more than 1 minute."

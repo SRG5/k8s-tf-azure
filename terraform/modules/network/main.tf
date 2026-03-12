@@ -37,6 +37,22 @@ resource "azurerm_network_security_group" "this" {
     source_address_prefix      = var.ssh_allowed_cidr
     destination_address_prefix = "*"
   }
+
+  dynamic "security_rule" {
+    for_each = var.grafana_nodeport_enabled ? [1] : []
+
+    content {
+      name                       = "allow-grafana-nodeport-from-operator"
+      priority                   = 110
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = tostring(var.grafana_nodeport)
+      source_address_prefix      = var.ssh_allowed_cidr
+      destination_address_prefix = "*"
+    }
+  }
 }
 
 resource "time_sleep" "after_subnet_and_nsg" {

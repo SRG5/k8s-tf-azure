@@ -87,3 +87,15 @@ variable "tags" {
     managed_by  = "terraform"
   }
 }
+
+variable "grafana_nodeport_enabled" {
+  description = "Whether to allow inbound access to the Grafana NodePort from ssh_allowed_cidr."
+  type        = bool
+  default     = false
+}
+
+variable "grafana_nodeport" {
+  description = "Grafana NodePort exposed by kube-prometheus-stack."
+  type        = number
+  default     = 32000
+}

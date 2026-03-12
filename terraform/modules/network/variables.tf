@@ -42,3 +42,15 @@ variable "tags" {
   description = "Common tags."
   type        = map(string)
 }
+
+variable "grafana_nodeport_enabled" {
+  description = "Whether to allow inbound access to the Grafana NodePort."
+  type        = bool
+  default     = false
+}
+
+variable "grafana_nodeport" {
+  description = "Grafana NodePort value."
+  type        = number
+  default     = 32000
+}

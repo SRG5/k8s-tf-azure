@@ -9,6 +9,21 @@ locals {
       "${path.module}/../scripts/stage3-apply.sh",
       "${path.module}/../scripts/stage3-verify.sh"
     ]
+
+  )
+}
+
+locals {
+  stage4_asset_dir   = "${path.module}/../observability/stage4"
+  stage4_asset_files = sort(tolist(fileset(local.stage4_asset_dir, "**")))
+
+  stage4_artifacts = concat(
+    [for f in local.stage4_asset_files : "${local.stage4_asset_dir}/${f}"],
+    [
+      "${path.module}/../scripts/stage4-apply.sh",
+      "${path.module}/../scripts/stage4-trigger-cpu.sh",
+      "${path.module}/../scripts/stage4-verify.sh"
+    ]
   )
 }
 
@@ -26,15 +41,17 @@ resource "time_sleep" "after_resource_group" {
 module "network" {
   source = "./modules/network"
 
-  location                = var.location
-  resource_group_name     = azurerm_resource_group.this.name
-  vnet_name               = var.vnet_name
-  vnet_address_space      = var.vnet_address_space
-  subnet_name             = var.subnet_name
-  subnet_address_prefixes = var.subnet_address_prefixes
-  nsg_name                = var.nsg_name
-  ssh_allowed_cidr        = var.ssh_allowed_cidr
-  tags                    = var.tags
+  location                 = var.location
+  resource_group_name      = azurerm_resource_group.this.name
+  vnet_name                = var.vnet_name
+  vnet_address_space       = var.vnet_address_space
+  subnet_name              = var.subnet_name
+  subnet_address_prefixes  = var.subnet_address_prefixes
+  nsg_name                 = var.nsg_name
+  ssh_allowed_cidr         = var.ssh_allowed_cidr
+  tags                     = var.tags
+  grafana_nodeport_enabled = var.grafana_nodeport_enabled
+  grafana_nodeport         = var.grafana_nodeport
 
   depends_on = [time_sleep.after_resource_group]
 }
@@ -147,6 +164,61 @@ resource "null_resource" "upload_stage3_assets" {
       "chmod +x /opt/k8s-tf-azure/scripts/stage3-verify.sh",
       "ls -l /opt/k8s-tf-azure/scripts",
       "find /opt/k8s-tf-azure/kubernetes/stage3 -maxdepth 1 -type f | sort"
+    ]
+  }
+}
+
+resource "null_resource" "upload_stage4_assets" {
+  depends_on = [null_resource.upload_stage3_assets]
+
+  triggers = {
+    vm_ip             = module.linux_vm.public_ip_address
+    stage4_bundle_sha = sha256(join("", [for f in local.stage4_artifacts : filesha256(f)]))
+  }
+
+  connection {
+    type        = "ssh"
+    user        = var.admin_username
+    host        = module.linux_vm.public_ip_address
+    private_key = file(var.admin_ssh_private_key_path)
+    timeout     = "2m"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /opt/k8s-tf-azure/observability",
+      "sudo mkdir -p /opt/k8s-tf-azure/scripts",
+      "sudo chown -R ${var.admin_username}:${var.admin_username} /opt/k8s-tf-azure"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../observability/stage4"
+    destination = "/opt/k8s-tf-azure/observability"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../scripts/stage4-apply.sh"
+    destination = "/opt/k8s-tf-azure/scripts/stage4-apply.sh"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../scripts/stage4-trigger-cpu.sh"
+    destination = "/opt/k8s-tf-azure/scripts/stage4-trigger-cpu.sh"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../scripts/stage4-verify.sh"
+    destination = "/opt/k8s-tf-azure/scripts/stage4-verify.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /opt/k8s-tf-azure/scripts/stage4-apply.sh",
+      "chmod +x /opt/k8s-tf-azure/scripts/stage4-trigger-cpu.sh",
+      "chmod +x /opt/k8s-tf-azure/scripts/stage4-verify.sh",
+      "ls -l /opt/k8s-tf-azure/scripts",
+      "find /opt/k8s-tf-azure/observability/stage4 -maxdepth 1 -type f | sort"
     ]
   }
 }

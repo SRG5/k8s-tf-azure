@@ -27,3 +27,8 @@ output "stage2_scripts_path" {
   description = "Path on the VM where the Stage 2 scripts were uploaded."
   value       = "/opt/k8s-tf-azure/scripts"
 }
+
+output "grafana_url" {
+  description = "Grafana URL via NodePort when enabled."
+  value       = var.grafana_nodeport_enabled ? "http://${module.linux_vm.public_ip_address}:${var.grafana_nodeport}" : null
+}
