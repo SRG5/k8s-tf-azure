@@ -4,6 +4,11 @@ resource "azurerm_resource_group" "this" {
   tags     = var.tags
 }
 
+resource "time_sleep" "after_resource_group" {
+  depends_on      = [azurerm_resource_group.this]
+  create_duration = "20s"
+}
+
 module "network" {
   source = "./modules/network"
 
@@ -16,6 +21,8 @@ module "network" {
   nsg_name                = var.nsg_name
   ssh_allowed_cidr        = var.ssh_allowed_cidr
   tags                    = var.tags
+
+  depends_on = [time_sleep.after_resource_group]
 }
 
 module "linux_vm" {
@@ -29,4 +36,6 @@ module "linux_vm" {
   admin_ssh_public_key = file(var.admin_ssh_public_key_path)
   subnet_id            = module.network.subnet_id
   tags                 = var.tags
+
+  depends_on = [module.network]
 }
