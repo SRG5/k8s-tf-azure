@@ -6,7 +6,7 @@ variable "subscription_id" {
 variable "location" {
   description = "Azure region for all resources."
   type        = string
-  default     = "westeurope"
+  default     = "northeurope"
 }
 
 variable "resource_group_name" {
@@ -54,7 +54,7 @@ variable "vm_name" {
 variable "vm_size" {
   description = "Azure VM size."
   type        = string
-  default     = "Standard_B2ms"
+  default     = "Standard_E2ads_v7"
 }
 
 variable "admin_username" {
