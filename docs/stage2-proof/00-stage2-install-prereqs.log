@@ -1,0 +1,204 @@
+== Disable swap now and persistently ==
+== Kernel modules and sysctl for Kubernetes networking ==
+overlay
+br_netfilter
+net.ipv4.ip_forward = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+* Applying /etc/sysctl.d/10-console-messages.conf ...
+kernel.printk = 4 4 1 7
+* Applying /etc/sysctl.d/10-ipv6-privacy.conf ...
+net.ipv6.conf.all.use_tempaddr = 2
+net.ipv6.conf.default.use_tempaddr = 2
+* Applying /etc/sysctl.d/10-kernel-hardening.conf ...
+kernel.kptr_restrict = 1
+* Applying /etc/sysctl.d/10-magic-sysrq.conf ...
+kernel.sysrq = 176
+* Applying /etc/sysctl.d/10-network-security.conf ...
+net.ipv4.conf.default.rp_filter = 2
+net.ipv4.conf.all.rp_filter = 2
+* Applying /etc/sysctl.d/10-ptrace.conf ...
+kernel.yama.ptrace_scope = 1
+* Applying /etc/sysctl.d/10-zeropage.conf ...
+vm.mmap_min_addr = 65536
+* Applying /usr/lib/sysctl.d/50-default.conf ...
+kernel.core_uses_pid = 1
+net.ipv4.conf.default.rp_filter = 2
+net.ipv4.conf.default.accept_source_route = 0
+sysctl: setting key "net.ipv4.conf.all.accept_source_route": Invalid argument
+net.ipv4.conf.default.promote_secondaries = 1
+sysctl: setting key "net.ipv4.conf.all.promote_secondaries": Invalid argument
+net.ipv4.ping_group_range = 0 2147483647
+net.core.default_qdisc = fq_codel
+fs.protected_hardlinks = 1
+fs.protected_symlinks = 1
+fs.protected_regular = 1
+fs.protected_fifos = 1
+* Applying /usr/lib/sysctl.d/50-pid-max.conf ...
+kernel.pid_max = 4194304
+* Applying /etc/sysctl.d/99-cloudimg-ipv6.conf ...
+net.ipv6.conf.all.use_tempaddr = 0
+net.ipv6.conf.default.use_tempaddr = 0
+* Applying /etc/sysctl.d/99-cloudimg-udp.conf ...
+net.core.rmem_max = 1048576
+net.core.rmem_default = 1048576
+* Applying /etc/sysctl.d/99-kubernetes-cri.conf ...
+net.ipv4.ip_forward = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+* Applying /usr/lib/sysctl.d/99-protect-links.conf ...
+fs.protected_fifos = 1
+fs.protected_hardlinks = 1
+fs.protected_regular = 2
+fs.protected_symlinks = 1
+* Applying /etc/sysctl.d/99-sysctl.conf ...
+* Applying /etc/sysctl.conf ...
+== Install containerd ==
+Hit:1 http://azure.archive.ubuntu.com/ubuntu jammy InRelease
+Get:2 http://azure.archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Get:3 http://azure.archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [14.1 MB]
+Get:6 http://azure.archive.ubuntu.com/ubuntu jammy/universe Translation-en [5652 kB]
+Get:7 http://azure.archive.ubuntu.com/ubuntu jammy/universe amd64 c-n-f Metadata [286 kB]
+Get:8 http://azure.archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [217 kB]
+Get:9 http://azure.archive.ubuntu.com/ubuntu jammy/multiverse Translation-en [112 kB]
+Get:10 http://azure.archive.ubuntu.com/ubuntu jammy/multiverse amd64 c-n-f Metadata [8372 B]
+Get:11 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3286 kB]
+Get:12 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main Translation-en [499 kB]
+Get:13 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 c-n-f Metadata [19.2 kB]
+Get:14 http://azure.archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [5414 kB]
+Get:15 http://azure.archive.ubuntu.com/ubuntu jammy-updates/restricted Translation-en [1028 kB]
+Get:16 http://azure.archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 c-n-f Metadata [676 B]
+Get:17 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1257 kB]
+Get:18 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe Translation-en [315 kB]
+Get:19 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 c-n-f Metadata [30.4 kB]
+Get:20 http://azure.archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [59.0 kB]
+Get:21 http://azure.archive.ubuntu.com/ubuntu jammy-updates/multiverse Translation-en [13.5 kB]
+Get:22 http://azure.archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 c-n-f Metadata [612 B]
+Get:23 http://azure.archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [69.4 kB]
+Get:24 http://azure.archive.ubuntu.com/ubuntu jammy-backports/main Translation-en [11.5 kB]
+Get:25 http://azure.archive.ubuntu.com/ubuntu jammy-backports/main amd64 c-n-f Metadata [412 B]
+Get:26 http://azure.archive.ubuntu.com/ubuntu jammy-backports/restricted amd64 c-n-f Metadata [116 B]
+Get:27 http://azure.archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [31.7 kB]
+Get:28 http://azure.archive.ubuntu.com/ubuntu jammy-backports/universe Translation-en [16.9 kB]
+Get:29 http://azure.archive.ubuntu.com/ubuntu jammy-backports/universe amd64 c-n-f Metadata [672 B]
+Get:30 http://azure.archive.ubuntu.com/ubuntu jammy-backports/multiverse amd64 c-n-f Metadata [116 B]
+Get:31 http://azure.archive.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3023 kB]
+Get:32 http://azure.archive.ubuntu.com/ubuntu jammy-security/main Translation-en [431 kB]
+Get:33 http://azure.archive.ubuntu.com/ubuntu jammy-security/main amd64 c-n-f Metadata [14.1 kB]
+Get:34 http://azure.archive.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [5251 kB]
+Get:35 http://azure.archive.ubuntu.com/ubuntu jammy-security/restricted Translation-en [1000 kB]
+Get:36 http://azure.archive.ubuntu.com/ubuntu jammy-security/restricted amd64 c-n-f Metadata [680 B]
+Get:37 http://azure.archive.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1019 kB]
+Get:38 http://azure.archive.ubuntu.com/ubuntu jammy-security/universe Translation-en [225 kB]
+Get:39 http://azure.archive.ubuntu.com/ubuntu jammy-security/universe amd64 c-n-f Metadata [22.7 kB]
+Get:40 http://azure.archive.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [51.9 kB]
+Get:41 http://azure.archive.ubuntu.com/ubuntu jammy-security/multiverse Translation-en [10.6 kB]
+Get:42 http://azure.archive.ubuntu.com/ubuntu jammy-security/multiverse amd64 c-n-f Metadata [388 B]
+Fetched 43.9 MB in 3s (13.5 MB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+ca-certificates is already the newest version (20240203~22.04.1).
+ca-certificates set to manually installed.
+gpg is already the newest version (2.2.27-3ubuntu2.5).
+gpg set to manually installed.
+The following NEW packages will be installed:
+  apt-transport-https containerd runc
+The following packages will be upgraded:
+  curl libcurl4
+2 upgraded, 3 newly installed, 0 to remove and 31 not upgraded.
+Need to get 47.9 MB of archives.
+After this operation, 178 MB of additional disk space will be used.
+Get:1 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 apt-transport-https all 2.4.14 [1510 B]
+Get:2 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 runc amd64 1.3.3-0ubuntu1~22.04.3 [8857 kB]
+Get:3 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 containerd amd64 1.7.28-0ubuntu1~22.04.1 [38.5 MB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 curl amd64 7.81.0-1ubuntu1.23 [194 kB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libcurl4 amd64 7.81.0-1ubuntu1.23 [290 kB]
+Fetched 47.9 MB in 2s (19.5 MB/s)
+Selecting previously unselected package apt-transport-https.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 62836 files and directories currently installed.)
+Preparing to unpack .../apt-transport-https_2.4.14_all.deb ...
+Unpacking apt-transport-https (2.4.14) ...
+Selecting previously unselected package runc.
+Preparing to unpack .../runc_1.3.3-0ubuntu1~22.04.3_amd64.deb ...
+Unpacking runc (1.3.3-0ubuntu1~22.04.3) ...
+Selecting previously unselected package containerd.
+Preparing to unpack .../containerd_1.7.28-0ubuntu1~22.04.1_amd64.deb ...
+Unpacking containerd (1.7.28-0ubuntu1~22.04.1) ...
+Preparing to unpack .../curl_7.81.0-1ubuntu1.23_amd64.deb ...
+Unpacking curl (7.81.0-1ubuntu1.23) over (7.81.0-1ubuntu1.21) ...
+Preparing to unpack .../libcurl4_7.81.0-1ubuntu1.23_amd64.deb ...
+Unpacking libcurl4:amd64 (7.81.0-1ubuntu1.23) over (7.81.0-1ubuntu1.21) ...
+Setting up apt-transport-https (2.4.14) ...
+Setting up runc (1.3.3-0ubuntu1~22.04.3) ...
+Setting up libcurl4:amd64 (7.81.0-1ubuntu1.23) ...
+Setting up curl (7.81.0-1ubuntu1.23) ...
+Setting up containerd (1.7.28-0ubuntu1~22.04.1) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/containerd.service → /lib/systemd/system/containerd.service.
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.12) ...
+== Add Kubernetes repo and install kubelet/kubeadm/kubectl ==
+deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.35/deb/ /
+Hit:1 http://azure.archive.ubuntu.com/ubuntu jammy InRelease
+Hit:2 http://azure.archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:3 http://azure.archive.ubuntu.com/ubuntu jammy-backports InRelease
+Hit:4 http://azure.archive.ubuntu.com/ubuntu jammy-security InRelease
+Get:5 https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.35/deb  InRelease [1227 B]
+Get:6 https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.35/deb  Packages [5174 B]
+Fetched 6401 B in 1s (11.9 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  cri-tools kubernetes-cni
+The following NEW packages will be installed:
+  cri-tools kubeadm kubectl kubelet kubernetes-cni
+0 upgraded, 5 newly installed, 0 to remove and 31 not upgraded.
+Need to get 92.0 MB of archives.
+After this operation, 328 MB of additional disk space will be used.
+Get:1 https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.35/deb  cri-tools 1.35.0-1.1 [16.2 MB]
+Get:2 https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.35/deb  kubeadm 1.35.2-1.1 [12.4 MB]
+Get:3 https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.35/deb  kubectl 1.35.2-1.1 [11.5 MB]
+Get:4 https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.35/deb  kubernetes-cni 1.8.0-1.1 [38.9 MB]
+Get:5 https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.35/deb  kubelet 1.35.2-1.1 [12.9 MB]
+Fetched 92.0 MB in 1s (92.0 MB/s)
+Selecting previously unselected package cri-tools.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 62902 files and directories currently installed.)
+Preparing to unpack .../cri-tools_1.35.0-1.1_amd64.deb ...
+Unpacking cri-tools (1.35.0-1.1) ...
+Selecting previously unselected package kubeadm.
+Preparing to unpack .../kubeadm_1.35.2-1.1_amd64.deb ...
+Unpacking kubeadm (1.35.2-1.1) ...
+Selecting previously unselected package kubectl.
+Preparing to unpack .../kubectl_1.35.2-1.1_amd64.deb ...
+Unpacking kubectl (1.35.2-1.1) ...
+Selecting previously unselected package kubernetes-cni.
+Preparing to unpack .../kubernetes-cni_1.8.0-1.1_amd64.deb ...
+Unpacking kubernetes-cni (1.8.0-1.1) ...
+Selecting previously unselected package kubelet.
+Preparing to unpack .../kubelet_1.35.2-1.1_amd64.deb ...
+Unpacking kubelet (1.35.2-1.1) ...
+Setting up kubectl (1.35.2-1.1) ...
+Setting up cri-tools (1.35.0-1.1) ...
+Setting up kubernetes-cni (1.8.0-1.1) ...
+Setting up kubeadm (1.35.2-1.1) ...
+Setting up kubelet (1.35.2-1.1) ...
+kubelet set on hold.
+kubeadm set on hold.
+kubectl set on hold.
+== Versions ==
+containerd github.com/containerd/containerd 1.7.28 
+kubeadm version: &version.Info{Major:"1", Minor:"35", EmulationMajor:"", EmulationMinor:"", MinCompatibilityMajor:"", MinCompatibilityMinor:"", GitVersion:"v1.35.2", GitCommit:"fdc9d74cbf2da6754ebf81d56f80ae2948cd6425", GitTreeState:"clean", BuildDate:"2026-02-26T20:04:53Z", GoVersion:"go1.25.7", Compiler:"gc", Platform:"linux/amd64"}
+Client Version: v1.35.2
+Kustomize Version: v5.7.1
+
+== Binary checks ==
+/usr/bin/containerd
+/usr/bin/kubelet
+/usr/bin/kubeadm
+/usr/bin/kubectl
+active

@@ -1,0 +1,8 @@
+NAME                                      READY   STATUS    RESTARTS   AGE   IP              NODE             NOMINATED NODE   READINESS GATES
+calico-apiserver-c96996f56-5d4kw          1/1     Running   0          15m   192.168.162.7   vm-k8s-node-01   <none>           <none>
+calico-apiserver-c96996f56-f4mvw          1/1     Running   0          15m   192.168.162.1   vm-k8s-node-01   <none>           <none>
+calico-kube-controllers-7fccb86bd-v7mwh   1/1     Running   0          15m   192.168.162.6   vm-k8s-node-01   <none>           <none>
+calico-node-zh2bb                         1/1     Running   0          15m   10.10.1.4       vm-k8s-node-01   <none>           <none>
+calico-typha-86996c677c-gdxxs             1/1     Running   0          15m   10.10.1.4       vm-k8s-node-01   <none>           <none>
+goldmane-58f96f7c58-bcfn6                 1/1     Running   0          15m   192.168.162.5   vm-k8s-node-01   <none>           <none>
+whisker-54f656cfc9-vtw8k                  2/2     Running   0          14m   192.168.162.8   vm-k8s-node-01   <none>           <none>

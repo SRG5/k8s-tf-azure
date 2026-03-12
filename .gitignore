@@ -26,10 +26,6 @@ id_rsa*
 id_ed25519*
 !*.pub
 
-# Kubernetes / proof artifacts
-stage2-proof/
-*.log
-
 # OS / editor
 .DS_Store
 Thumbs.db

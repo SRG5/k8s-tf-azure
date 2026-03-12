@@ -1,0 +1,90 @@
+Name:               vm-k8s-node-01
+Roles:              control-plane
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=vm-k8s-node-01
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/control-plane=
+                    node.kubernetes.io/exclude-from-external-load-balancers=
+Annotations:        node.alpha.kubernetes.io/ttl: 0
+                    projectcalico.org/IPv4Address: 10.10.1.4/24
+                    projectcalico.org/IPv4IPIPTunnelAddr: 192.168.162.0
+                    projectcalico.org/Interfaces: [{"name":"enP30832s1"},{"name":"eth0","addresses":["10.10.1.4"]}]
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Thu, 12 Mar 2026 19:40:54 +0000
+Taints:             <none>
+Unschedulable:      false
+Lease:
+  HolderIdentity:  vm-k8s-node-01
+  AcquireTime:     <unset>
+  RenewTime:       Thu, 12 Mar 2026 19:56:53 +0000
+Conditions:
+  Type                 Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----                 ------  -----------------                 ------------------                ------                       -------
+  NetworkUnavailable   False   Thu, 12 Mar 2026 19:42:00 +0000   Thu, 12 Mar 2026 19:42:00 +0000   CalicoIsUp                   Calico is running on this node
+  MemoryPressure       False   Thu, 12 Mar 2026 19:53:15 +0000   Thu, 12 Mar 2026 19:40:53 +0000   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure         False   Thu, 12 Mar 2026 19:53:15 +0000   Thu, 12 Mar 2026 19:40:53 +0000   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure          False   Thu, 12 Mar 2026 19:53:15 +0000   Thu, 12 Mar 2026 19:40:53 +0000   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready                True    Thu, 12 Mar 2026 19:53:15 +0000   Thu, 12 Mar 2026 19:41:52 +0000   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:  10.10.1.4
+  Hostname:    vm-k8s-node-01
+Capacity:
+  cpu:                2
+  ephemeral-storage:  30298176Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             16375544Ki
+  pods:               110
+Allocatable:
+  cpu:                2
+  ephemeral-storage:  27922798956
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             16273144Ki
+  pods:               110
+System Info:
+  Machine ID:                 718b8e0376d94ecc91ceb6f32644f075
+  System UUID:                325e42c1-97f7-402c-ba10-d9fac97267e6
+  Boot ID:                    e73894c2-68f4-4398-8ff5-adc089d8e6f3
+  Kernel Version:             6.8.0-1044-azure
+  OS Image:                   Ubuntu 22.04.5 LTS
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://1.7.28
+  Kubelet Version:            v1.35.2
+  Kube-Proxy Version:         
+PodCIDR:                      192.168.0.0/24
+PodCIDRs:                     192.168.0.0/24
+Non-terminated Pods:          (15 in total)
+  Namespace                   Name                                       CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                                       ------------  ----------  ---------------  -------------  ---
+  calico-system               calico-apiserver-c96996f56-5d4kw           0 (0%)        0 (0%)      0 (0%)           0 (0%)         15m
+  calico-system               calico-apiserver-c96996f56-f4mvw           0 (0%)        0 (0%)      0 (0%)           0 (0%)         15m
+  calico-system               calico-kube-controllers-7fccb86bd-v7mwh    0 (0%)        0 (0%)      0 (0%)           0 (0%)         15m
+  calico-system               calico-node-zh2bb                          0 (0%)        0 (0%)      0 (0%)           0 (0%)         15m
+  calico-system               calico-typha-86996c677c-gdxxs              0 (0%)        0 (0%)      0 (0%)           0 (0%)         15m
+  calico-system               goldmane-58f96f7c58-bcfn6                  0 (0%)        0 (0%)      0 (0%)           0 (0%)         15m
+  calico-system               whisker-54f656cfc9-vtw8k                   0 (0%)        0 (0%)      0 (0%)           0 (0%)         14m
+  kube-system                 coredns-7d764666f9-8272h                   100m (5%)     0 (0%)      70Mi (0%)        170Mi (1%)     15m
+  kube-system                 coredns-7d764666f9-hzwjx                   100m (5%)     0 (0%)      70Mi (0%)        170Mi (1%)     15m
+  kube-system                 etcd-vm-k8s-node-01                        100m (5%)     0 (0%)      100Mi (0%)       0 (0%)         16m
+  kube-system                 kube-apiserver-vm-k8s-node-01              250m (12%)    0 (0%)      0 (0%)           0 (0%)         16m
+  kube-system                 kube-controller-manager-vm-k8s-node-01     200m (10%)    0 (0%)      0 (0%)           0 (0%)         16m
+  kube-system                 kube-proxy-9rrkv                           0 (0%)        0 (0%)      0 (0%)           0 (0%)         15m
+  kube-system                 kube-scheduler-vm-k8s-node-01              100m (5%)     0 (0%)      0 (0%)           0 (0%)         16m
+  tigera-operator             tigera-operator-6cf4cccc57-9c546           0 (0%)        0 (0%)      0 (0%)           0 (0%)         15m
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                850m (42%)  0 (0%)
+  memory             240Mi (1%)  340Mi (2%)
+  ephemeral-storage  0 (0%)      0 (0%)
+  hugepages-1Gi      0 (0%)      0 (0%)
+  hugepages-2Mi      0 (0%)      0 (0%)
+Events:
+  Type    Reason          Age   From             Message
+  ----    ------          ----  ----             -------
+  Normal  RegisteredNode  15m   node-controller  Node vm-k8s-node-01 event: Registered Node vm-k8s-node-01 in Controller

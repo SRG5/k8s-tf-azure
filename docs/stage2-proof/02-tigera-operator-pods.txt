@@ -1,0 +1,2 @@
+NAME                               READY   STATUS    RESTARTS   AGE   IP          NODE             NOMINATED NODE   READINESS GATES
+tigera-operator-6cf4cccc57-9c546   1/1     Running   0          15m   10.10.1.4   vm-k8s-node-01   <none>           <none>

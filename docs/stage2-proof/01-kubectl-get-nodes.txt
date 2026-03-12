@@ -1,0 +1,2 @@
+NAME             STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION     CONTAINER-RUNTIME
+vm-k8s-node-01   Ready    control-plane   15m   v1.35.2   10.10.1.4     <none>        Ubuntu 22.04.5 LTS   6.8.0-1044-azure   containerd://1.7.28
