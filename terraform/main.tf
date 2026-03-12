@@ -21,12 +21,12 @@ module "network" {
 module "linux_vm" {
   source = "./modules/linux_vm"
 
-  location               = var.location
-  resource_group_name    = azurerm_resource_group.this.name
-  vm_name                = var.vm_name
-  vm_size                = var.vm_size
-  admin_username         = var.admin_username
-  admin_ssh_public_key   = file(var.admin_ssh_public_key_path)
-  subnet_id              = module.network.subnet_id
-  tags                   = var.tags
+  location             = var.location
+  resource_group_name  = azurerm_resource_group.this.name
+  vm_name              = var.vm_name
+  vm_size              = var.vm_size
+  admin_username       = var.admin_username
+  admin_ssh_public_key = file(var.admin_ssh_public_key_path)
+  subnet_id            = module.network.subnet_id
+  tags                 = var.tags
 }
