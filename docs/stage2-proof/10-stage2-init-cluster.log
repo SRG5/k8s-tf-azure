@@ -52,7 +52,7 @@ W0312 19:40:28.335414    3507 checks.go:906] detected that the sandbox image "re
 [upload-certs] Skipping phase. Please see --upload-certs
 [mark-control-plane] Marking the node vm-k8s-node-01 as control-plane by adding the labels: [node-role.kubernetes.io/control-plane node.kubernetes.io/exclude-from-external-load-balancers]
 [mark-control-plane] Marking the node vm-k8s-node-01 as control-plane by adding the taints [node-role.kubernetes.io/control-plane:NoSchedule]
-[bootstrap-token] Using token: wc0u0d.d89ujpdkmylb59rv
+[bootstrap-token] Using token: XXXXXXXXXXXXX
 [bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
 [bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to get nodes
 [bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
@@ -81,7 +81,7 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join 10.10.1.4:6443 --token wc0u0d.d89ujpdkmylb59rv \
+kubeadm join XXXXXXXXXXXX --token XXXXXXXXXXXXXXX \
 	--discovery-token-ca-cert-hash sha256:aa9da1b054cd46b4454b740ec57635abe30023733c7dc9d3fca96ecfe7fe849d 
 == Configure kubeconfig ==
 == Remove control-plane taint for single-node scheduling ==
