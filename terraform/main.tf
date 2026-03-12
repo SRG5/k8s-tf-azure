@@ -49,9 +49,9 @@ resource "null_resource" "upload_stage2_scripts" {
   depends_on = [time_sleep.after_vm]
 
   triggers = {
-    vm_ip         = module.linux_vm.public_ip_address
-    install_sha   = filesha256("${path.module}/../scripts/stage2-install-prereqs.sh")
-    init_sha      = filesha256("${path.module}/../scripts/stage2-init-cluster.sh")
+    vm_ip       = module.linux_vm.public_ip_address
+    install_sha = filesha256("${path.module}/../scripts/stage2-install-prereqs.sh")
+    init_sha    = filesha256("${path.module}/../scripts/stage2-init-cluster.sh")
   }
 
   connection {
