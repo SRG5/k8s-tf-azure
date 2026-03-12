@@ -17,8 +17,11 @@ kubectl get prometheusrule -n "${NAMESPACE}" -o yaml | tee "${PROOF_DIR}/02-prom
 GRAFANA_NODEPORT="$(kubectl get svc "${RELEASE}-grafana" -n "${NAMESPACE}" -o jsonpath='{.spec.ports[0].nodePort}')"
 echo "grafana_nodeport=${GRAFANA_NODEPORT}" | tee "${PROOF_DIR}/03-grafana-nodeport.txt"
 
-PROM_SVC="$(kubectl get svc -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | grep -E 'prometheus$|prometheus-' | grep -v operated | head -n1)"
-AM_SVC="$(kubectl get svc -n "${NAMESPACE}" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | grep alertmanager | head -n1)"
+PROM_SVC="${RELEASE}-prometheus"
+AM_SVC="${RELEASE}-alertmanager"
+
+kubectl get svc "${PROM_SVC}" -n "${NAMESPACE}" >/dev/null
+kubectl get svc "${AM_SVC}" -n "${NAMESPACE}" >/dev/null
 
 if [ -z "${PROM_SVC}" ] || [ -z "${AM_SVC}" ]; then
   echo "ERROR: could not detect Prometheus or Alertmanager service names"
@@ -41,7 +44,8 @@ sleep 8
 echo "== Wait for Prometheus alert to become firing =="
 for i in $(seq 1 30); do
   curl -s http://127.0.0.1:9090/api/v1/alerts | tee "${PROOF_DIR}/10-prometheus-alerts.json" >/dev/null
-  if grep -q 'Stage4NodeHighCPU' "${PROOF_DIR}/10-prometheus-alerts.json"; then
+  if grep -q 'Stage4NodeHighCPU' "${PROOF_DIR}/10-prometheus-alerts.json" && \
+    grep -q '"state":"firing"' "${PROOF_DIR}/10-prometheus-alerts.json"; then
     echo "Prometheus sees Stage4NodeHighCPU"
     break
   fi
