@@ -1,29 +1,39 @@
 # k8s-tf-azure
 
-Implementation for the **DevOps Home Assignment - K8s and TF on Azure**.
+Implementation for the **DevOps Home Assignment – K8s and Terraform on Azure**.
 
-This repository provisions a lightweight Azure environment for a **single-node kubeadm-based Kubernetes cluster** and stages the Stage 2 Kubernetes installation scripts directly onto the VM.
+This repository provisions a lightweight Azure environment for a **single-node kubeadm-based Kubernetes cluster**, uploads the required Stage 2 and Stage 3 assets to the VM, and documents the execution flow and proof files used for submission.
+
+## Current status
+
+Completed:
+- **Stage 1** – Azure infrastructure with Terraform
+- **Stage 2** – Kubernetes installation on the VM with `kubeadm` and Calico
+- **Stage 3** – Namespace isolation with workloads and `NetworkPolicy`
+
+Planned next:
+- **Stage 4** – Observability with Prometheus, Grafana, and Alertmanager
 
 ## What this repo includes
 
 - Terraform for Azure infrastructure
-- A minimal network layout: Resource Group, VNet, subnet, NSG
+- Resource Group, VNet, subnet, and NSG
 - One Ubuntu Linux VM
-- SSH restricted to your CIDR
-- Stage 2 Kubernetes installation scripts uploaded automatically to the VM after provisioning
-- A short Stage 2 runbook for what to run and what proof to capture
+- SSH restricted to a chosen CIDR
+- Automatic upload of Stage 2 scripts to the VM
+- Automatic upload of Stage 3 manifests and scripts to the VM
+- Runbooks and proof files for Stage 2 and Stage 3
 
 ## Design choices
 
-- **Single VM**: enough for a kubeadm single-node cluster.
-- **Ubuntu 22.04 LTS**: common and stable choice for kubeadm.
-- **Single subnet**: enough for this scope and keeps networking clear.
-- **NSG attached to the subnet**: simple and easy to reason about.
-- **SSH restricted to your IP/CIDR**: better than leaving port 22 open broadly.
-- **Scripts uploaded by Terraform**: reduces copy/paste mistakes while keeping the actual cluster installation explicit and easy to demonstrate.
-- **No extra services**: no load balancer, no jump host, no autoscaling, no extras the assignment did not ask for.
+- **Single VM**: enough for a single-node kubeadm cluster for this assignment
+- **Ubuntu 22.04 LTS**: stable and common for Kubernetes tooling
+- **Single subnet + NSG**: simple network model and easy to reason about
+- **SSH restricted to one CIDR**: avoids exposing port 22 broadly
+- **Terraform uploads assets but does not execute them**: keeps infrastructure provisioning separate from Kubernetes execution and makes the demo flow explicit
+- **Calico**: used as the CNI and enables `NetworkPolicy` enforcement
 
-## Suggested repo layout
+## Repository layout
 
 ```text
 terraform/
@@ -36,11 +46,25 @@ terraform/
   modules/
     network/
     linux_vm/
+
 scripts/
   stage2-install-prereqs.sh
   stage2-init-cluster.sh
+  stage3-apply.sh
+  stage3-verify.sh
+
+kubernetes/
+  stage3/
+    00-namespaces.yaml
+    10-app1.yaml
+    20-app2.yaml
+    30-network-policies.yaml
+
 docs/
   stage2-runbook.md
+  stage2-proof/
+  stage3-runbook.md
+  stage3-proof/
 ```
 
 ## Prerequisites
@@ -48,7 +72,7 @@ docs/
 - Azure subscription
 - Azure CLI installed
 - Terraform installed
-- An SSH key pair
+- SSH key pair
 
 ## How to use
 
@@ -64,14 +88,13 @@ az login
 cd terraform
 ```
 
-3. Create your own variables file from the example:
+3. Create your variables file from the example:
 
 ```powershell
 Copy-Item terraform.tfvars.example terraform.tfvars
 ```
 
-4. Edit `terraform.tfvars` and set:
-
+4. Edit `terraform.tfvars` and set at least:
 - `subscription_id`
 - `ssh_allowed_cidr`
 - `admin_ssh_public_key_path`
@@ -91,27 +114,56 @@ terraform apply tfplan
 
 After the VM is created, Terraform uploads:
 
+### Stage 2
 - `/opt/k8s-tf-azure/scripts/stage2-install-prereqs.sh`
 - `/opt/k8s-tf-azure/scripts/stage2-init-cluster.sh`
 
-## Stage 2 execution
+### Stage 3
+- `/opt/k8s-tf-azure/kubernetes/stage3/00-namespaces.yaml`
+- `/opt/k8s-tf-azure/kubernetes/stage3/10-app1.yaml`
+- `/opt/k8s-tf-azure/kubernetes/stage3/20-app2.yaml`
+- `/opt/k8s-tf-azure/kubernetes/stage3/30-network-policies.yaml`
+- `/opt/k8s-tf-azure/scripts/stage3-apply.sh`
+- `/opt/k8s-tf-azure/scripts/stage3-verify.sh`
 
-SSH into the VM and run:
+Terraform does **not** execute these scripts automatically.
 
-```bash
-/opt/k8s-tf-azure/scripts/stage2-install-prereqs.sh
-/opt/k8s-tf-azure/scripts/stage2-init-cluster.sh
-```
+## Stage 2 summary
 
-See `docs/stage2-runbook.md` for the exact flow and the expected proof.
+Stage 2 installs Kubernetes components on the VM, initializes the cluster with `kubeadm`, installs Calico, and removes the control-plane taint so workloads can run on the single node.
 
-## Capture apply output for submission
+See:
+- `docs/stage2-runbook.md`
+- `docs/stage2-proof/`
 
-```powershell
-terraform apply -auto-approve *>&1 | Tee-Object -FilePath apply-output.txt
-```
+## Stage 3 summary
+
+Stage 3 creates two namespaces:
+- `app1`
+- `app2`
+
+Each namespace includes:
+- a dedicated `ServiceAccount`
+- an `nginx` workload
+- a `Service`
+- unique content so the response can identify the namespace
+
+`NetworkPolicy` is then applied so that:
+- traffic **within the same namespace is allowed**
+- traffic **between namespaces is blocked**
+
+Verification is done with `curl` from temporary test pods.
+
+See:
+- `docs/stage3-runbook.md`
+- `docs/stage3-proof/`
+
+The Stage 3 proof demonstrates both required outcomes:
+- same-namespace traffic allowed (`Hello from app1`) 
+- cross-namespace traffic blocked (`curl_exit_code=28`) citeturn563732view1turn563732view0
 
 ## Notes
 
-- Do **not** commit `terraform.tfvars`, `terraform.tfstate`, `.terraform/`, or `tfplan`.
-- The NSG currently allows only SSH inbound from your chosen CIDR. Later stages can extend the same NSG for Grafana NodePort access.
+- Do **not** commit `terraform.tfvars`, `terraform.tfstate`, `.terraform/`, or `tfplan`
+- The NSG currently allows only SSH inbound from the configured CIDR
+- The same NSG can be extended in Stage 4 for restricted Grafana access
