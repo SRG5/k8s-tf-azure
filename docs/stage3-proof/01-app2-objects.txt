@@ -1,0 +1,11 @@
+NAME                              READY   STATUS    RESTARTS   AGE     IP               NODE             NOMINATED NODE   READINESS GATES
+pod/app2-nginx-566884b994-xr7dw   1/1     Running   0          2m44s   192.168.162.10   vm-k8s-node-01   <none>           <none>
+
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE     SELECTOR
+service/app2-svc   ClusterIP   10.99.236.145   <none>        80/TCP    2m44s   app=app2-nginx
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES         SELECTOR
+deployment.apps/app2-nginx   1/1     1            1           2m44s   nginx        nginx:alpine   app=app2-nginx
+
+NAME                                    DESIRED   CURRENT   READY   AGE     CONTAINERS   IMAGES         SELECTOR
+replicaset.apps/app2-nginx-566884b994   1         1         1       2m44s   nginx        nginx:alpine   app=app2-nginx,pod-template-hash=566884b994

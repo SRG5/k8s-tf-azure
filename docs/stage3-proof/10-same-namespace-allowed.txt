@@ -1,0 +1,8 @@
+<!doctype html>
+<html>
+  <head><title>app1</title></head>
+  <body>
+    <h1>Hello from app1</h1>
+  </body>
+</html>
+pod "curl-same-app1" deleted from app1 namespace
