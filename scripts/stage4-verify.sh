@@ -23,13 +23,16 @@ AM_SVC="${RELEASE}-alertmanager"
 kubectl get svc "${PROM_SVC}" -n "${NAMESPACE}" >/dev/null
 kubectl get svc "${AM_SVC}" -n "${NAMESPACE}" >/dev/null
 
-if [ -z "${PROM_SVC}" ] || [ -z "${AM_SVC}" ]; then
-  echo "ERROR: could not detect Prometheus or Alertmanager service names"
-  exit 1
-fi
+PROM_PID=""
+AM_PID=""
 
 cleanup() {
-  kill "${PROM_PID:-0}" "${AM_PID:-0}" 2>/dev/null || true
+  if [ -n "${PROM_PID}" ] && kill -0 "${PROM_PID}" 2>/dev/null; then
+    kill "${PROM_PID}" 2>/dev/null || true
+  fi
+  if [ -n "${AM_PID}" ] && kill -0 "${AM_PID}" 2>/dev/null; then
+    kill "${AM_PID}" 2>/dev/null || true
+  fi
 }
 trap cleanup EXIT
 
@@ -41,33 +44,42 @@ AM_PID=$!
 
 sleep 8
 
+PROM_FIRING=false
+AM_FOUND=false
+
 echo "== Wait for Prometheus alert to become firing =="
 for i in $(seq 1 30); do
-  curl -s http://127.0.0.1:9090/api/v1/alerts | tee "${PROOF_DIR}/10-prometheus-alerts.json" >/dev/null
+  curl -sS http://127.0.0.1:9090/api/v1/alerts | tee "${PROOF_DIR}/10-prometheus-alerts.json" >/dev/null
+
   if grep -q 'Stage4NodeHighCPU' "${PROOF_DIR}/10-prometheus-alerts.json" && \
-    grep -q '"state":"firing"' "${PROOF_DIR}/10-prometheus-alerts.json"; then
-    echo "Prometheus sees Stage4NodeHighCPU"
+     grep -q '"state":"firing"' "${PROOF_DIR}/10-prometheus-alerts.json"; then
+    echo "Prometheus sees Stage4NodeHighCPU firing"
+    PROM_FIRING=true
     break
   fi
+
   sleep 10
 done
 
-if ! grep -q 'Stage4NodeHighCPU' "${PROOF_DIR}/10-prometheus-alerts.json"; then
-  echo "ERROR: Stage4NodeHighCPU was not found in Prometheus alerts"
+if [ "${PROM_FIRING}" != "true" ]; then
+  echo "ERROR: Stage4NodeHighCPU was not found in Prometheus alerts as firing"
   exit 1
 fi
 
 echo "== Wait for Alertmanager alert =="
 for i in $(seq 1 30); do
-  curl -s http://127.0.0.1:9093/api/v2/alerts | tee "${PROOF_DIR}/11-alertmanager-alerts.json" >/dev/null
+  curl -sS http://127.0.0.1:9093/api/v2/alerts | tee "${PROOF_DIR}/11-alertmanager-alerts.json" >/dev/null
+
   if grep -q 'Stage4NodeHighCPU' "${PROOF_DIR}/11-alertmanager-alerts.json"; then
     echo "Alertmanager sees Stage4NodeHighCPU"
+    AM_FOUND=true
     break
   fi
+
   sleep 10
 done
 
-if ! grep -q 'Stage4NodeHighCPU' "${PROOF_DIR}/11-alertmanager-alerts.json"; then
+if [ "${AM_FOUND}" != "true" ]; then
   echo "ERROR: Stage4NodeHighCPU was not found in Alertmanager"
   exit 1
 fi

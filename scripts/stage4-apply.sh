@@ -31,7 +31,7 @@ echo "== Wait for main workloads =="
 kubectl rollout status deployment/"${RELEASE}"-operator -n "${NAMESPACE}" --timeout=300s
 kubectl rollout status deployment/"${RELEASE}"-kube-state-metrics -n "${NAMESPACE}" --timeout=300s
 kubectl rollout status deployment/"${RELEASE}"-grafana -n "${NAMESPACE}" --timeout=300s
-kubectl rollout status daemonset/"${RELEASE}"-prometheus-node-exporter -n "${NAMESPACE}" --timeout=300s true
+kubectl rollout status daemonset/"${RELEASE}"-prometheus-node-exporter -n "${NAMESPACE}" --timeout=300s
 
 echo "== Apply custom PrometheusRule =="
 kubectl apply -f "${RULE_FILE}"
